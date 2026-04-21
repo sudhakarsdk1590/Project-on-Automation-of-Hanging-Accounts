@@ -6,6 +6,7 @@ import org.springframework.batch.infrastructure.item.database.JdbcPagingItemRead
 import org.springframework.batch.infrastructure.item.database.Order;
 import org.springframework.batch.infrastructure.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.infrastructure.item.database.support.OraclePagingQueryProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,7 @@ public class ReaderConfig {
     @Bean
     @StepScope
     public JdbcPagingItemReader<Transactions> reader(
-            DataSource dataSource,
+            @Qualifier("oracleDataSource") DataSource dataSource,
             @Value("#{jobParameters['clientIds']}") String clientIds,
             @Value("#{jobParameters['accountType']}") String accountType,
             @Value("#{jobParameters['lastUpdatedBefore']}") String lastUpdatedBefore)

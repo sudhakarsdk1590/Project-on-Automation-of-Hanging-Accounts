@@ -15,10 +15,12 @@ public class JobService {
 
     private final JobOperator jobOperator;
     private final Job job;
+    private final JobAuditService jobAuditService;
 
     public String runJob(JobRequest request) {
 
         try {
+            Long jobId = System.currentTimeMillis();
             JobParameters params = new JobParametersBuilder()
                     .addString("clientIds", String.join(",", request.getClientIds()))
                     .addString("accountType", request.getAccountType())
@@ -26,6 +28,8 @@ public class JobService {
                     .addLong("run.id", System.currentTimeMillis())
                     .addLong("jobId", System.currentTimeMillis())
                     .toJobParameters();
+
+            jobAuditService.saveJobStarted(jobId,String.join(",", request.getClientIds()), request.getAccountType());
 
             JobExecution execution = jobOperator.start(job, params);
 
