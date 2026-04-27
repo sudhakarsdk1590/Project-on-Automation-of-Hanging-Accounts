@@ -1,4 +1,7 @@
 package com.sudhakarproject.exceptions;
 
-public class OracleDatabaseDownException {
+public class OracleDatabaseDownException extends RuntimeException{
+    public OracleDatabaseDownException(String message) {
+        super(message);
+    }
 }
