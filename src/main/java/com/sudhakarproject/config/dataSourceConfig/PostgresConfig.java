@@ -24,4 +24,5 @@ public class PostgresConfig {
     public DataSource postgresDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
+
 }
