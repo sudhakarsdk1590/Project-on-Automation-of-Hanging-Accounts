@@ -6,16 +6,20 @@ import com.sudhakarproject.repository.JobAuditEventRepository;
 import com.sudhakarproject.repository.JobAuditRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class JobAuditService {
 
     private final JobAuditRepository jobAuditRepository;
     private final JobAuditEventRepository jobAuditEventRepository;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveJobStarted(Long jobId,String clientId,String accountType){
 
         JobAudit jobAudit =  new JobAudit();
@@ -24,14 +28,16 @@ public class JobAuditService {
         jobAudit.setAccountType(accountType);
         jobAudit.setStatus("STARTED");
         jobAudit.setCreatedAt(LocalDateTime.now());
+        jobAudit.setErrorMessage("Data Retrived Successfully");
 
         jobAuditRepository.save(jobAudit);
 
         saveEvent(jobId,"JOB_STARTED","Job execution started");
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void markCompleted(Long jobId,
-                              Integer totalRecords,
+                              Long totalRecords,
                               String fileName) {
 
         JobAudit audit = jobAuditRepository.findByJobId(jobId).orElseThrow();
@@ -46,6 +52,7 @@ public class JobAuditService {
         saveEvent(jobId, "JOB_COMPLETED", "Job completed successfully");
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void markFailed(Long jobId,
                            String error) {
 

@@ -1,5 +1,7 @@
 package com.sudhakarproject.joblistener;
 
+import com.sudhakarproject.entity.JobAuditEvent;
+import com.sudhakarproject.service.JobAuditService;
 import com.sudhakarproject.writer.SummaryWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.BatchStatus;
@@ -14,9 +16,13 @@ import org.springframework.stereotype.Component;
 public class JobListener implements JobExecutionListener {
 
     private final SummaryWriter summaryWriter;
+    private final JobAuditService jobAuditService;
+
 
     @Override
     public void afterJob(JobExecution jobExecution) {
+
+       Long jobId =  jobExecution.getJobParameters().getLong("jobId");
 
         long total = 0;
         long hanging = 0;
@@ -29,9 +35,49 @@ public class JobListener implements JobExecutionListener {
         }
 
         try {
-            summaryWriter.write(jobExecution, total, hanging);
+            summaryWriter.write(
+                    jobExecution,
+                    total,
+                    hanging
+            );
+            if (jobExecution.getStatus()
+                    == BatchStatus.COMPLETED) {
+
+                jobAuditService.markCompleted(
+                        jobId,
+                        jobExecution.getId(),
+                        "Processed: " + total +
+                                ", Hanging: " + hanging
+                );
+            }else {
+                String error =
+                        getFailureMessage(jobExecution);
+
+                jobAuditService.markFailed(
+                        jobId,
+                        error
+                );
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            jobAuditService.markFailed(
+                    jobId,
+                    "Summary generation failed: "
+                            + e.getMessage()
+            );
         }
+    }
+    private String getFailureMessage(
+            JobExecution jobExecution) {
+
+        if (!jobExecution.getAllFailureExceptions()
+                .isEmpty()) {
+
+            return jobExecution
+                    .getAllFailureExceptions()
+                    .get(0)
+                    .getMessage();
+        }
+
+        return "Unknown Batch Failure";
     }
 }
