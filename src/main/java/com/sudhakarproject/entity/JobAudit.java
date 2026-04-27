@@ -18,7 +18,7 @@ public class JobAudit {
     private String clientIds;
     private String accountType;
     private String status;
-    private Integer totalRecords;
+    private Long totalRecords;
     private String fileName;
     private String errorMessage;
     private LocalDateTime createdAt;
