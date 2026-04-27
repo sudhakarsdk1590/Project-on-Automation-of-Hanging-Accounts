@@ -18,7 +18,9 @@ public class JobController {
 
     @PostMapping("/run")
     public ResponseEntity<String> run(@RequestBody JobRequest request) {
-        jobService.runJob(request);
-        return ResponseEntity.ok("Job Started");
+
+       String response = jobService.runJob(request);
+
+        return ResponseEntity.ok(response);
     }
 }
