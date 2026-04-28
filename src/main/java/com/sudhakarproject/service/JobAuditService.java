@@ -53,6 +53,17 @@ public class JobAuditService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markRunning(Long jobId){
+
+       JobAudit audit = jobAuditRepository.findByJobId(jobId).orElseThrow();
+
+       audit.setStatus("RUNNING");
+
+       jobAuditRepository.save(audit);
+       saveEvent(jobId,"JOB_RUNNING","Batch job execution started");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void markFailed(Long jobId,
                            String error) {
 
