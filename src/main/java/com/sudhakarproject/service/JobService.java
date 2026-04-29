@@ -112,6 +112,20 @@ public class JobService {
             throw new InvalidRequestException("ClientIds cannot be null");
         }
 
+        if (clientIds.size() > 10){
+            throw new InvalidRequestException("Maximum 10 ClientIds are allowed");
+        }
+
+        for (String clientId : clientIds){
+            if (clientId ==  null || clientId.isBlank()){
+                throw new InvalidRequestException("ClientIds cannot be Blank");
+            }
+
+            if (!clientId.matches("\\d+")){
+                throw new InvalidRequestException("ClientId must contain numbers only : " + clientId);
+            }
+        }
+
         if (request.getAccountType() == null || request.getAccountType().isBlank()){
             throw new InvalidRequestException("Account Type is required");
         }
